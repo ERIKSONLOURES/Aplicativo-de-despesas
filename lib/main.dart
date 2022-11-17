@@ -19,7 +19,7 @@ class ExpensesApp extends StatelessWidget {
       theme: tema.copyWith(
         colorScheme: tema.colorScheme.copyWith(
           primary: Colors.blue[700],
-          secondary: Color.fromARGB(255, 2, 100, 192),
+          secondary: Colors.amber,
         ),
         textTheme: tema.textTheme.copyWith(
           headline6: const TextStyle(
@@ -54,6 +54,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transactions = [];
+  bool _showChart = false;
 
   List<Transaction> get _recentTransactions {
     return _transactions.where((tr) {
@@ -80,9 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _removeTransaction(String id) {
     setState(() {
-      _transactions.removeWhere((tr) {
-        return tr.id == id;
-      });
+      _transactions.removeWhere((tr) => tr.id == id);
     });
   }
 
@@ -97,22 +96,50 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appBar = AppBar(
+      title: const Text('Despesas Pessoais'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _openTransactionFormModal(context),
+        ),
+      ],
+    );
+
+    final availableHeight = MediaQuery.of(context).size.height -
+        appBar.preferredSize.height -
+        MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Despesas Pessoais'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openTransactionFormModal(context),
-          ),
-        ],
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Chart(_recentTransactions),
-            TransactionList(_transactions, _removeTransaction),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Exibir Gráfico'),
+                Switch(
+                  value: _showChart,
+                  onChanged: (value) {
+                    setState(() {
+                      _showChart = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            if (_showChart)
+              SizedBox(
+                height: availableHeight * 0.3,
+                child: Chart(_recentTransactions),
+              ),
+            if (!_showChart)
+              SizedBox(
+                height: availableHeight * 0.7,
+                child: TransactionList(_transactions, _removeTransaction),
+              ),
           ],
         ),
       ),
