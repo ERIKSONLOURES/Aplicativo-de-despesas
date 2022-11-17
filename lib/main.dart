@@ -18,12 +18,12 @@ class ExpensesApp extends StatelessWidget {
       home: const MyHomePage(),
       theme: tema.copyWith(
         colorScheme: tema.colorScheme.copyWith(
-          primary: Colors.blue[700],
+          primary: Colors.purple,
           secondary: Colors.amber,
         ),
         textTheme: tema.textTheme.copyWith(
           headline6: const TextStyle(
-            fontFamily: 'Inter',
+            fontFamily: 'OpenSans',
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -35,7 +35,7 @@ class ExpensesApp extends StatelessWidget {
         ),
         appBarTheme: const AppBarTheme(
           titleTextStyle: TextStyle(
-            fontFamily: 'Inter',
+            fontFamily: 'OpenSans',
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -96,9 +96,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     final appBar = AppBar(
       title: const Text('Despesas Pessoais'),
       actions: [
+        if (isLandscape)
+          IconButton(
+            icon: Icon(_showChart ? Icons.list : Icons.show_chart),
+            onPressed: () {
+              setState(() {
+                _showChart = !_showChart;
+              });
+            },
+          ),
         IconButton(
           icon: const Icon(Icons.add),
           onPressed: () => _openTransactionFormModal(context),
@@ -116,26 +128,27 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Exibir Gráfico'),
-                Switch(
-                  value: _showChart,
-                  onChanged: (value) {
-                    setState(() {
-                      _showChart = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-            if (_showChart)
+            // if (isLandscape)
+            //   Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       const Text('Exibir Gráfico'),
+            //       Switch(
+            //         value: _showChart,
+            //         onChanged: (value) {
+            //           setState(() {
+            //             _showChart = value;
+            //           });
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            if (_showChart || !isLandscape)
               SizedBox(
-                height: availableHeight * 0.3,
+                height: availableHeight * (isLandscape ? 0.7 : 0.3),
                 child: Chart(_recentTransactions),
               ),
-            if (!_showChart)
+            if (!_showChart || !isLandscape)
               SizedBox(
                 height: availableHeight * 0.7,
                 child: TransactionList(_transactions, _removeTransaction),

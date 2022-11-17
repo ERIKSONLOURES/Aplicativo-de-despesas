@@ -11,39 +11,41 @@ class TransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.6,
-      child: transactions.isEmpty
-          ? Column(
-              children: [
-                const SizedBox(height: 20),
-                Text(
-                  'Nenhuma Transação Cadastrada!',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  height: 200,
-                  child: Image.asset(
-                    'assets/images/undraw_Loading_re_5axr.png',
-                    fit: BoxFit.cover,
+    return transactions.isEmpty
+        ? LayoutBuilder(
+            builder: (ctx, constraints) {
+              return Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Text(
+                    'Nenhuma Transação Cadastrada!',
+                    style: Theme.of(context).textTheme.headline6,
                   ),
-                ),
-              ],
-            )
-          : ListView.builder(
-              itemCount: transactions.length,
-              itemBuilder: (ctx, index) {
-                final tr = transactions[index];
-                return Card(
-                  elevation: 5,
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 5,
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: constraints.maxHeight * 0.6,
+                    child: Image.asset(
+                      'assets/images/waiting.png',
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  child: ListTile(
+                ],
+              );
+            },
+          )
+        : ListView.builder(
+            itemCount: transactions.length,
+            itemBuilder: (ctx, index) {
+              final tr = transactions[index];
+              return Card(
+                elevation: 5,
+                margin: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 5,
+                ),
+                child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Color.fromARGB(255, 49, 74, 214),
+                      backgroundColor: Colors.purple,
                       radius: 30,
                       child: Padding(
                         padding: const EdgeInsets.all(6),
@@ -64,15 +66,24 @@ class TransactionList extends StatelessWidget {
                     subtitle: Text(
                       DateFormat('d MMM y').format(tr.date),
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      color: Theme.of(context).errorColor,
-                      onPressed: () => onRemove(tr.id),
-                    ),
-                  ),
-                );
-              },
-            ),
-    );
+                    trailing: MediaQuery.of(context).size.width > 480
+                        ? TextButton.icon(
+                            onPressed: () => onRemove(tr.id),
+                            icon: Icon(Icons.delete,
+                                color: Theme.of(context).errorColor),
+                            label: Text(
+                              'Excluir',
+                              style: TextStyle(
+                                  color: Theme.of(context).errorColor),
+                            ),
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.delete),
+                            color: Theme.of(context).errorColor,
+                            onPressed: () => onRemove(tr.id),
+                          )),
+              );
+            },
+          );
   }
 }
